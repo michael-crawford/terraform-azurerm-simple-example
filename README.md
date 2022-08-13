@@ -15,35 +15,45 @@ Cloud interacts with Version Control Systems, see
 
 ## What are the prerequisites?
 
-You must have an Azure subscription and provide your Azure credentials to Terraform Cloud.
-Terraform Cloud encrypts and stores variables using
-[Vault](https://www.vaultproject.io/).
-For more information on how to store variables in Terraform Cloud, see
+You must have an Azure subscription, create a Service Principal for use by Terravorm, and then provide the details of
+this Azure credential to Terraform Cloud via a Variable Set. Terraform Cloud encrypts and stores variables using
+[Vault](https://www.vaultproject.io/). For more information on how to store variables in Terraform Cloud, see
 [our variable documentation](https://www.terraform.io/docs/cloud/workspaces/variables.html).
 
-The values for `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` should be saved as environment variables on your workspace.
+The values for `ARM_TENANT_ID`, `ARM_SUBSCRIPTION_ID`, `ARM_CLIENT_ID` and `ARM_CLIENT_SECRET` should be saved as
+environment variables on your workspace.
 
+## How to create a Service Principal for use in Terraform Cloud
 
-## How to create client id for use in Terraform Cloud
-
-1. Create Client ID
+1. Create Service Principal
 
     ```bash
     az login
 
     az account list
 
-    az account set --subscription="${SUBSCRIPTION_ID}"
+    az account set --subscription ${SUBSCRIPTION_ID}
 
-    az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${SUBSCRIPTION_ID}"
+    az ad sp create-for-rbac --name Terraform \
+                             --role Contributor \
+                             --scopes /subscriptions/${SUBSCRIPTION_ID}
     ```
 
-2. Test Client ID
+2. Test Service Principal
+    * Extract the TENANT_ID from the `az account list` output
+    * Obtain the SUBSCRIPTION_ID from the Azure Portal
+    * Extract the CLIENT_ID from the `appId` field of the `az ad sp create-for-rbac` output
+    * Extract the CLIENT_SECRET from the `password` field of the `az ad sp create-for-rbac` output
 
     ```bash
-    az login --service-principal -u ${CLIENT_ID} -p ${CLIENT_SECRET} --tenant ${TENANT_ID}
+    az login --service-principal \
+             --tenant ${TENANT_ID} \
+             --user ${CLIENT_ID} \
+             --password ${CLIENT_SECRET}
 
-    az vm list-sizes --location westus
+    az vm list-sizes --location westus -o table
+
+    az logout
     ```
 
 ## Links
