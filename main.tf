@@ -111,7 +111,7 @@ resource "azurerm_linux_virtual_machine" "myterraformvm" {
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = file("~/.ssh/mjc_administrator_id_rsa.pub")
+    public_key = var.administrator_public_key
   }
 
   boot_diagnostics {
