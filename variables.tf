@@ -10,4 +10,5 @@ variable "resource_group_location" {
 
 variable "administrator_public_key" {
   description   = "Public Key of the Administrator SSH Key."
+  default       = "<specify as a workspace variable>"
 }
